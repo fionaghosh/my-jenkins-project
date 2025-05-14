@@ -6,7 +6,7 @@ pipeline {
     stage('Build') {
       steps {
         // Compile & package with Maven
-        sh 'mvn clean package'
+        bat 'mvn clean package'
       }
     }
 
@@ -14,9 +14,9 @@ pipeline {
     stage('Unit & Integration Tests') {
       steps {
         // Run unit tests via Surefire
-        sh 'mvn test'
+        bat 'mvn test'
         // Run integration tests via Failsafe (assumes you’ve defined an "integration" profile)
-        sh 'mvn verify -Pintegration'
+        bat 'mvn verify -Pintegration'
       }
     }
 
@@ -25,7 +25,7 @@ pipeline {
       steps {
         // Run SonarQube analysis (requires a SonarQube server configured in Jenkins)
         withSonarQubeEnv('MySonarQubeServer') {
-          sh 'sonar-scanner -Dsonar.projectKey=my-jenkins-project'
+          bat 'sonar-scanner -Dsonar.projectKey=my-jenkins-project'
         }
       }
     }
@@ -34,7 +34,7 @@ pipeline {
     stage('Security Scan') {
       steps {
         // OWASP Dependency-Check Maven plugin
-        sh 'mvn org.owasp:dependency-check-maven:check'
+        bat 'mvn org.owasp:dependency-check-maven:check'
       }
     }
 
@@ -42,7 +42,7 @@ pipeline {
     stage('Deploy to Staging') {
       steps {
         // Push & create a deployment via AWS CLI (CodeDeploy)
-        sh '''
+        bat '''
           aws deploy push \
             --application-name MyApp \
             --s3-location s3://my-bucket/my-app.zip \
@@ -60,7 +60,7 @@ pipeline {
     stage('Integration Tests on Staging') {
       steps {
         // Run Postman collections against staging via Newman
-        sh 'newman run tests/postman_collection.json -e tests/env/staging.json'
+        bat 'newman run tests/postman_collection.json -e tests/env/staging.json'
       }
     }
 
@@ -68,7 +68,7 @@ pipeline {
     stage('Deploy to Production') {
       steps {
         // Similar AWS CodeDeploy call, targeting the production group
-        sh '''
+        bat '''
           aws deploy create-deployment \
             --application-name MyApp \
             --deployment-group-name production \
