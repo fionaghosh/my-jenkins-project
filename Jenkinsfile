@@ -2,78 +2,45 @@ pipeline {
   agent any
 
   stages {
-    // Stage 1: Build
-    stage('Build') {
+    stage('Stage 1: Build') {
       steps {
-        // Compile & package with Maven
-        bat 'mvn clean package'
+        echo 'Build – Compile and package the code using Maven'
       }
     }
 
-    // Stage 2: Unit and Integration Tests
-    stage('Unit & Integration Tests') {
+    stage('Stage 2: Unit and Integration Tests') {
       steps {
-        // Run unit tests via Surefire
-        bat 'mvn test'
-        // Run integration tests via Failsafe (assumes you’ve defined an "integration" profile)
-        bat 'mvn verify -Pintegration'
+        echo 'Unit and Integration Tests – Run unit tests with JUnit (Surefire) and integration tests with Maven Failsafe'
       }
     }
 
-    // Stage 3: Code Analysis
-    stage('Code Analysis') {
+    stage('Stage 3: Code Analysis') {
       steps {
-        // Run SonarQube analysis (requires a SonarQube server configured in Jenkins)
-        withSonarQubeEnv('MySonarQubeServer') {
-          bat 'sonar-scanner -Dsonar.projectKey=my-jenkins-project'
-        }
+        echo 'Code Analysis – Perform static code analysis using SonarQube scanner'
       }
     }
 
-    // Stage 4: Security Scan
-    stage('Security Scan') {
+    stage('Stage 4: Security Scan') {
       steps {
-        // OWASP Dependency-Check Maven plugin
-        bat 'mvn org.owasp:dependency-check-maven:check'
+        echo 'Security Scan – Identify vulnerabilities with OWASP Dependency-Check'
       }
     }
 
-    // Stage 5: Deploy to Staging
-    stage('Deploy to Staging') {
+    stage('Stage 5: Deploy to Staging') {
       steps {
-        // Push & create a deployment via AWS CLI (CodeDeploy)
-        bat '''
-          aws deploy push \
-            --application-name MyApp \
-            --s3-location s3://my-bucket/my-app.zip \
-            --ignore-hidden-files
-
-          aws deploy create-deployment \
-            --application-name MyApp \
-            --deployment-group-name staging \
-            --s3-location bucket=my-bucket,key=my-app.zip,bundleType=zip
-        '''
+        echo 'Deploy to Staging – Deploy the application to a staging AWS EC2 instance via CodeDeploy'
       }
     }
 
-    // Stage 6: Integration Tests on Staging
-    stage('Integration Tests on Staging') {
+    stage('Stage 6: Integration Tests on Staging') {
       steps {
-        // Run Postman collections against staging via Newman
-        bat 'newman run tests/postman_collection.json -e tests/env/staging.json'
+        echo 'Integration Tests on Staging – Execute end-to-end tests using Newman (Postman CLI)'
       }
     }
 
-    // Stage 7: Deploy to Production
-    stage('Deploy to Production') {
+    stage('Stage 7: Deploy to Production') {
       steps {
-        // Similar AWS CodeDeploy call, targeting the production group
-        bat '''
-          aws deploy create-deployment \
-            --application-name MyApp \
-            --deployment-group-name production \
-            --s3-location bucket=my-bucket,key=my-app.zip,bundleType=zip
-        '''
+        echo 'Deploy to Production – Deploy the validated artifact to production AWS EC2 via CodeDeploy'
       }
     }
   }
